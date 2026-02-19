@@ -40,11 +40,12 @@
 <body class="p-4 pb-48">
 
     <div class="flex justify-between items-center mb-6">
-        <div>
+        <div class="flex items-center gap-2">
             <h1 class="text-3xl font-black text-slate-900 italic uppercase">Ramadan POS</h1>
+            <span id="wakelock-indicator" style="font-size:1.2rem;cursor:pointer;" title="Wake lock status">⚪</span>
         </div>
         <div class="text-right">
-            <span class="text-7xl font-black text-slate-900" id="order-num">#001</span>
+            <span class="text-7xl font-black text-slate-900" id="order-num">#0001</span>
         </div>
     </div>
 
@@ -122,13 +123,19 @@
             <span class="text-slate-400 font-black uppercase text-xs tracking-widest">Total</span>
             <span id="grand-total" class="text-6xl font-black text-slate-900">$0.00</span>
         </div>
-        <button id="print-btn" onclick="printOrder()" class="bg-slate-900 text-white px-12 py-6 rounded-2xl text-3xl font-black uppercase tracking-widest active:scale-95 transition-transform">
-            Print 2 Copies
-        </button>
+        <div class="flex items-center gap-4">
+            <button id="reprint-btn" onclick="reprintLast()" style="display:none;background:white;color:#0f172a;border:2px solid #0f172a;padding:12px 24px;border-radius:16px;font-size:1.1rem;font-weight:900;align-items:center;cursor:pointer;">
+                ↩ Reprint
+            </button>
+            <button id="print-btn" onclick="printOrder()" class="bg-slate-900 text-white px-12 py-6 rounded-2xl text-3xl font-black uppercase tracking-widest active:scale-95 transition-transform">
+                Print 2 Copies
+            </button>
+        </div>
     </div>
 
     <script>
         let orderData = {};
+        let isPrinting = false;
         const prices = {
             'CT': 20, 'CRT': 20, 'MT': 20, 'SK': 20, 'Bread': 2,
             'Noodle_Chx': 20, 'Noodle_Egg': 20, 'Noodle_Veg': 20,
@@ -246,6 +253,7 @@
             orderData[id] = Math.max(0, (orderData[id] || 0) + delta);
             document.getElementById('qty-' + id).innerText = orderData[id];
             updateTotal();
+            saveState();
         }
 
         function setSize(itemId, price) {
@@ -254,6 +262,7 @@
             container.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
             updateTotal();
+            saveState();
         }
 
         function updateTotal() {
@@ -337,8 +346,11 @@
         }
 
         function printOrder() {
+            if (isPrinting) return;
             const total = parseFloat(document.getElementById('grand-total').innerText.replace('$', ''));
             if (total === 0) return;
+            isPrinting = true;
+            document.getElementById('print-btn').disabled = true;
 
             let fullJob;
             if (hasNoodles()) {
@@ -352,12 +364,24 @@
                         + generateReceipt('** CUSTOMER RECEIPT **');
             }
 
+            // Capture order number before reset for reprint label
+            const currentOrderNum = document.getElementById('order-num').innerText;
+            // Save last job in memory (primary) and localStorage (page-reload survival)
+            window._lastPrintJob = fullJob;
+            window._lastPrintJobNum = currentOrderNum;
+            try {
+                localStorage.setItem('df_lastJob', fullJob);
+                localStorage.setItem('df_lastJobNum', currentOrderNum);
+            } catch(e) { /* silent fail — in-memory copy still works */ }
+
             window.location.href = 'rawbt:base64,' + btoa(unescape(encodeURIComponent(fullJob)));
 
             // Increment order number & reset UI
             setTimeout(() => {
                 let num = parseInt(document.getElementById('order-num').innerText.replace('#', '')) + 1;
-                document.getElementById('order-num').innerText = `#${num.toString().padStart(3, '0')}`;
+                const newOrderNum = num.toString().padStart(4, '0');
+                document.getElementById('order-num').innerText = `#${newOrderNum}`;
+                localStorage.setItem('df_orderNum', newOrderNum);
                 for (let k in orderData) {
                     orderData[k] = 0;
                     let el = document.getElementById('qty-' + k);
@@ -369,10 +393,169 @@
                     .forEach(b => b.classList.add('active'));
                 prices['M_CHX'] = 22; prices['M_EGG'] = 22; prices['M_SPI'] = 22;
                 updateTotal();
-            }, 1000);
+                saveState();
+                isPrinting = false;
+                document.getElementById('print-btn').disabled = false;
+                updateReprintBtn();
+            }, 1500);
         }
 
-        updateTotal(); // initialise button state
+        // ── NEW FUNCTIONS BLOCK ───────────────────────────────────────────
+
+        // B3 — getInitialOrderNum: handles daily auto-reset
+        function getInitialOrderNum() {
+            const today = new Date().toDateString();
+            const savedDate = localStorage.getItem('df_date');
+            if (savedDate !== today) {
+                // New day — reset counter
+                localStorage.setItem('df_date', today);
+                localStorage.setItem('df_orderNum', '0001');
+                return '0001';
+            }
+            return localStorage.getItem('df_orderNum') || '0001';
+        }
+
+        // C1 — saveState: debounced localStorage persistence
+        let _saveTimer = null;
+        function saveState() {
+            clearTimeout(_saveTimer);
+            _saveTimer = setTimeout(() => {
+                try {
+                    localStorage.setItem('df_orderData', JSON.stringify(orderData));
+                    localStorage.setItem('df_prices', JSON.stringify(prices));
+                } catch(e) { /* silent fail on QuotaExceededError */ }
+            }, 300);
+        }
+
+        // C2 — loadState: restore cart and prices from localStorage
+        function loadState() {
+            try {
+                const savedData = localStorage.getItem('df_orderData');
+                if (savedData) {
+                    const parsed = JSON.parse(savedData);
+                    Object.assign(orderData, parsed);
+                    // Update all qty displays on screen
+                    for (let k in orderData) {
+                        const el = document.getElementById('qty-' + k);
+                        if (el) el.innerText = orderData[k];
+                    }
+                }
+
+                const savedPrices = localStorage.getItem('df_prices');
+                if (savedPrices) {
+                    const parsedPrices = JSON.parse(savedPrices);
+                    // Only restore Martabak prices — never override base menu prices
+                    ['M_CHX', 'M_EGG', 'M_SPI'].forEach(key => {
+                        if (parsedPrices[key]) prices[key] = parsedPrices[key];
+                    });
+                    // Re-apply active class to Martabak size buttons
+                    const sizeMap = { 22: 0, 25: 1, 30: 2 }; // index of S/M/L button
+                    ['M_CHX', 'M_EGG', 'M_SPI'].forEach(key => {
+                        const containerId = key.replace('_', '_') + '_S';
+                        // Map key to container id: M_CHX → M_CHX_S, M_EGG → M_EGG_S, M_SPI → M_SPI_S
+                        const containerIdFixed = key + '_S';
+                        const container = document.getElementById(containerIdFixed);
+                        if (container) {
+                            const btns = container.querySelectorAll('.size-btn');
+                            btns.forEach(b => b.classList.remove('active'));
+                            const idx = sizeMap[prices[key]];
+                            if (idx !== undefined && btns[idx]) btns[idx].classList.add('active');
+                        }
+                    });
+                }
+            } catch(e) { /* corrupt data — silently ignore, start fresh */ }
+        }
+
+        // F1 — requestWakeLock: keep screen on
+        async function requestWakeLock() {
+            if (!('wakeLock' in navigator)) {
+                console.warn('Wake Lock API not supported on this device.');
+                showWakeLockWarning(false);
+                return;
+            }
+            try {
+                window._wakeLock = await navigator.wakeLock.request('screen');
+
+                // Listen for sentinel release (browser/OS can release without visibility change)
+                window._wakeLock.addEventListener('release', () => {
+                    window._wakeLock = null;
+                    showWakeLockWarning(false);
+                });
+
+                showWakeLockWarning(true); // Wake lock is active
+            } catch(e) {
+                console.warn('Wake lock request failed:', e.message);
+                showWakeLockWarning(false);
+            }
+        }
+
+        // Re-acquire on tab becoming visible (handles both tab-switch and sentinel release)
+        document.addEventListener('visibilitychange', async () => {
+            if (document.visibilityState === 'visible') {
+                if (!window._wakeLock || window._wakeLock.released) {
+                    await requestWakeLock();
+                }
+            }
+        });
+
+        function showWakeLockWarning(isActive) {
+            const indicator = document.getElementById('wakelock-indicator');
+            if (!indicator) return;
+            if (isActive) {
+                indicator.textContent = '🟢';
+                indicator.title = 'Screen will stay on';
+            } else {
+                indicator.textContent = '🔴';
+                indicator.title = 'Screen may sleep — tap to retry';
+                indicator.onclick = () => requestWakeLock();
+            }
+        }
+
+        // H2 — reprintLast: resend last print job without incrementing order number
+        function reprintLast() {
+            // Prefer in-memory copy (faster, no encoding issues)
+            const job = window._lastPrintJob || localStorage.getItem('df_lastJob');
+            if (!job) {
+                alert('No previous receipt to reprint.');
+                return;
+            }
+            window.location.href = 'rawbt:base64,' + btoa(unescape(encodeURIComponent(job)));
+            // Does NOT increment order number, reset cart, or call saveState()
+        }
+
+        // H3 — updateReprintBtn: show/hide and label the reprint button
+        function updateReprintBtn() {
+            const btn = document.getElementById('reprint-btn');
+            if (!btn) return;
+            const lastNum = window._lastPrintJobNum || localStorage.getItem('df_lastJobNum');
+            if (lastNum) {
+                btn.textContent = `↩ Reprint ${lastNum}`;
+                btn.style.display = 'inline-flex';
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+
+        // ── PAGE LOAD SEQUENCE ─────────────────────────────────────────
+        // Order matters — do not reorder these calls.
+        (function init() {
+            // 1. Set order number (handles daily reset)
+            const orderNum = getInitialOrderNum();
+            document.getElementById('order-num').innerText = `#${orderNum}`;
+
+            // 2. Restore cart state from localStorage
+            loadState();
+
+            // 3. Recalculate total from restored state
+            updateTotal();
+
+            // 4. Request wake lock (keep screen on)
+            requestWakeLock();
+
+            // 5. Show reprint button if a last job exists
+            updateReprintBtn();
+        })();
+        // ───────────────────────────────────────────────────────────────
     </script>
 </body>
 </html>

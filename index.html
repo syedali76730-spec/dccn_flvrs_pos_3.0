@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ramadan POS - Galaxy Tab Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #f8fafc; color: #0f172a; font-family: system-ui, -apple-system, sans-serif; -webkit-user-select: none; touch-action: manipulation; }
+        .category-header { border-bottom: 3px solid #e2e8f0; margin-bottom: 12px; padding-bottom: 4px; }
+        .item-card { background: white; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; position: relative; overflow: hidden; transition: background 0.1s; }
+        .item-card:active { background-color: #f1f5f9; }
+        
+        /* Highlight Bar Styles */
+        .h-bar { width: 12px; position: absolute; left: 0; top: 0; bottom: 0; }
+        .bg-red { background-color: #ef4444; }
+        .bg-green { background-color: #22c55e; }
+        .bg-white { background-color: #ffffff; border-right: 1px solid #e2e8f0; }
+        .bg-brown { background-color: #78350f; }
+        .bg-beige { background-color: #f5f5dc; }
+        .bg-orange { background-color: #f97316; }
+        .bg-yellow { background-color: #facc15; }
+        .bg-dark-green { background-color: #14532d; }
+        .bg-golden { background-color: #d97706; }
+        .bg-light-green { background-color: #86efac; }
+        
+        /* Split Gradients for Combos */
+        .bg-red-green { background: linear-gradient(to bottom, #ef4444 50%, #22c55e 50%); }
+        .bg-red-white { background: linear-gradient(to bottom, #ef4444 50%, #ffffff 50%); }
+        .bg-red-brown { background: linear-gradient(to bottom, #ef4444 50%, #78350f 50%); }
+        .bg-green-white { background: linear-gradient(to bottom, #22c55e 50%, #ffffff 50%); }
+        .bg-white-brown { background: linear-gradient(to bottom, #ffffff 50%, #78350f 50%); }
+        .bg-green-brown { background: linear-gradient(to bottom, #22c55e 50%, #78350f 50%); }
+
+        .control-btn { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: bold; font-size: 1.8rem; }
+        .size-btn { padding: 6px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-weight: 800; }
+        .size-btn.active { background-color: #0f172a; color: white; border-color: #0f172a; }
+    </style>
+</head>
+<body class="p-4 pb-48">
+
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-black text-slate-900 italic uppercase">Ramadan POS</h1>
+        </div>
+        <div class="text-right">
+            <span class="text-7xl font-black text-slate-900" id="order-num">#001</span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-8">
+        
+        <div class="space-y-8">
+            <section>
+                <h2 class="category-header text-xl font-black text-slate-700">TIKKA & KEBAB</h2>
+                <div class="space-y-2">
+                    <div class="item-card p-3 rounded-xl shadow-sm"><div class="h-bar bg-red"></div><span class="ml-4 font-bold text-lg">C.T <span class="text-sm text-slate-400">$20</span></span><div class="flex items-center gap-4"><button onclick="change('CT', -1)" class="control-btn bg-slate-100 text-slate-400">-</button><span id="qty-CT" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('CT', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
+                    <div class="item-card p-3 rounded-xl shadow-sm"><div class="h-bar bg-green"></div><span class="ml-4 font-bold text-lg">C.R.T <span class="text-sm text-slate-400">$20</span></span><div class="flex items-center gap-4"><button onclick="change('CRT', -1)" class="control-btn bg-slate-100">-</button><span id="qty-CRT" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('CRT', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
+                    <div class="item-card p-3 rounded-xl shadow-sm"><div class="h-bar bg-white"></div><span class="ml-4 font-bold text-lg">M.T <span class="text-sm text-slate-400">$20</span></span><div class="flex items-center gap-4"><button onclick="change('MT', -1)" class="control-btn bg-slate-100">-</button><span id="qty-MT" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('MT', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
+                    <div class="item-card p-3 rounded-xl shadow-sm"><div class="h-bar bg-brown"></div><span class="ml-4 font-bold text-lg">S.K <span class="text-sm text-slate-400">$20</span></span><div class="flex items-center gap-4"><button onclick="change('SK', -1)" class="control-btn bg-slate-100">-</button><span id="qty-SK" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('SK', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
+                    <div class="item-card p-3 rounded-xl shadow-sm border-dashed"><div class="h-bar bg-beige"></div><span class="ml-4 font-bold text-lg">Extra Bread <span class="text-sm text-slate-400">$2</span></span><div class="flex items-center gap-4"><button onclick="change('Bread', -1)" class="control-btn bg-slate-100">-</button><span id="qty-Bread" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('Bread', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="category-header text-xl font-black text-slate-700">NOODLES ($20)</h2>
+                <div class="space-y-2">
+                    <div class="item-card p-3 rounded-xl"><div class="h-bar bg-orange"></div><span class="ml-4 font-bold text-lg">Chicken</span><div class="flex items-center gap-4"><button onclick="change('Noodle_Chx', -1)" class="control-btn bg-slate-100">-</button><span id="qty-Noodle_Chx" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('Noodle_Chx', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
+                    <div class="item-card p-3 rounded-xl"><div class="h-bar bg-yellow"></div><span class="ml-4 font-bold text-lg">Egg</span><div class="flex items-center gap-4"><button onclick="change('Noodle_Egg', -1)" class="control-btn bg-slate-100">-</button><span id="qty-Noodle_Egg" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('Noodle_Egg', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
+                    <div class="item-card p-3 rounded-xl"><div class="h-bar bg-green"></div><span class="ml-4 font-bold text-lg">Veg</span><div class="flex items-center gap-4"><button onclick="change('Noodle_Veg', -1)" class="control-btn bg-slate-100">-</button><span id="qty-Noodle_Veg" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('Noodle_Veg', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="category-header text-xl font-black text-slate-700">WRAPS ($15)</h2>
+                <div class="space-y-2">
+                    <div class="item-card p-3 rounded-xl"><div class="h-bar bg-red"></div><span class="ml-4 font-bold text-lg">C.T Wrap</span><div class="flex items-center gap-4"><button onclick="change('Wrap_CT', -1)" class="control-btn bg-slate-100">-</button><span id="qty-Wrap_CT" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('Wrap_CT', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
+                    <div class="item-card p-3 rounded-xl"><div class="h-bar bg-green"></div><span class="ml-4 font-bold text-lg">C.R.T Wrap</span><div class="flex items-center gap-4"><button onclick="change('Wrap_CRT', -1)" class="control-btn bg-slate-100">-</button><span id="qty-Wrap_CRT" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('Wrap_CRT', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
+                    <div class="item-card p-3 rounded-xl"><div class="h-bar bg-white"></div><span class="ml-4 font-bold text-lg">M.T Wrap</span><div class="flex items-center gap-4"><button onclick="change('Wrap_MT', -1)" class="control-btn bg-slate-100">-</button><span id="qty-Wrap_MT" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('Wrap_MT', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
+                </div>
+            </section>
+        </div>
+
+        <div class="space-y-8">
+            <section>
+                <h2 class="category-header text-xl font-black text-slate-700">COMBOS ($35)</h2>
+                <div class="grid grid-cols-1 gap-1 text-sm">
+                    <div class="item-card p-2 rounded-lg"><div class="h-bar bg-red-green"></div><span class="ml-4 font-bold">C.T & C.R.T</span><div class="flex items-center gap-3"><button onclick="change('C_CT_CRT', -1)" class="control-btn w-10 h-10 bg-slate-100 text-lg">-</button><span id="qty-C_CT_CRT" class="text-3xl font-black w-8 text-center">0</span><button onclick="change('C_CT_CRT', 1)" class="control-btn w-10 h-10 bg-slate-900 text-white text-lg">+</button></div></div>
+                    <div class="item-card p-2 rounded-lg"><div class="h-bar bg-red-white"></div><span class="ml-4 font-bold">C.T & M.T</span><div class="flex items-center gap-3"><button onclick="change('C_CT_MT', -1)" class="control-btn w-10 h-10 bg-slate-100 text-lg">-</button><span id="qty-C_CT_MT" class="text-3xl font-black w-8 text-center">0</span><button onclick="change('C_CT_MT', 1)" class="control-btn w-10 h-10 bg-slate-900 text-white text-lg">+</button></div></div>
+                    <div class="item-card p-2 rounded-lg"><div class="h-bar bg-red-brown"></div><span class="ml-4 font-bold">C.T & S.K</span><div class="flex items-center gap-3"><button onclick="change('C_CT_SK', -1)" class="control-btn w-10 h-10 bg-slate-100 text-lg">-</button><span id="qty-C_CT_SK" class="text-3xl font-black w-8 text-center">0</span><button onclick="change('C_CT_SK', 1)" class="control-btn w-10 h-10 bg-slate-900 text-white text-lg">+</button></div></div>
+                    <div class="item-card p-2 rounded-lg"><div class="h-bar bg-green-white"></div><span class="ml-4 font-bold">C.R.T & M.T</span><div class="flex items-center gap-3"><button onclick="change('C_CRT_MT', -1)" class="control-btn w-10 h-10 bg-slate-100 text-lg">-</button><span id="qty-C_CRT_MT" class="text-3xl font-black w-8 text-center">0</span><button onclick="change('C_CRT_MT', 1)" class="control-btn w-10 h-10 bg-slate-900 text-white text-lg">+</button></div></div>
+                    <div class="item-card p-2 rounded-lg"><div class="h-bar bg-white-brown"></div><span class="ml-4 font-bold">M.T & S.K</span><div class="flex items-center gap-3"><button onclick="change('C_MT_SK', -1)" class="control-btn w-10 h-10 bg-slate-100 text-lg">-</button><span id="qty-C_MT_SK" class="text-3xl font-black w-8 text-center">0</span><button onclick="change('C_MT_SK', 1)" class="control-btn w-10 h-10 bg-slate-900 text-white text-lg">+</button></div></div>
+                    <div class="item-card p-2 rounded-lg"><div class="h-bar bg-green-brown"></div><span class="ml-4 font-bold">C.R.T & S.K</span><div class="flex items-center gap-3"><button onclick="change('C_CRT_SK', -1)" class="control-btn w-10 h-10 bg-slate-100 text-lg">-</button><span id="qty-C_CRT_SK" class="text-3xl font-black w-8 text-center">0</span><button onclick="change('C_CRT_SK', 1)" class="control-btn w-10 h-10 bg-slate-900 text-white text-lg">+</button></div></div>
+                    <div class="item-card p-2 rounded-lg"><div class="h-bar bg-red"></div><span class="ml-4 font-bold">C.T Combo</span><div class="flex items-center gap-3"><button onclick="change('C_CT', -1)" class="control-btn w-10 h-10 bg-slate-100 text-lg">-</button><span id="qty-C_CT" class="text-3xl font-black w-8 text-center">0</span><button onclick="change('C_CT', 1)" class="control-btn w-10 h-10 bg-slate-900 text-white text-lg">+</button></div></div>
+                    <div class="item-card p-2 rounded-lg"><div class="h-bar bg-green"></div><span class="ml-4 font-bold">C.R.T Combo</span><div class="flex items-center gap-3"><button onclick="change('C_CRT', -1)" class="control-btn w-10 h-10 bg-slate-100 text-lg">-</button><span id="qty-C_CRT" class="text-3xl font-black w-8 text-center">0</span><button onclick="change('C_CRT', 1)" class="control-btn w-10 h-10 bg-slate-900 text-white text-lg">+</button></div></div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="category-header text-xl font-black text-slate-700">MARTABAK</h2>
+                <div class="space-y-2">
+                    <div class="item-card p-3 rounded-xl"><div class="h-bar bg-orange"></div><span class="ml-4 font-bold text-lg">Chicken</span><div class="flex items-center gap-2"><div class="flex gap-1 mr-2" id="M_CHX_S"><button onclick="setSize('M_CHX', 22)" class="size-btn active">S</button><button onclick="setSize('M_CHX', 25)" class="size-btn">M</button><button onclick="setSize('M_CHX', 30)" class="size-btn">L</button></div><button onclick="change('M_CHX', -1)" class="control-btn bg-slate-100">-</button><span id="qty-M_CHX" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('M_CHX', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
+                    <div class="item-card p-3 rounded-xl"><div class="h-bar bg-yellow"></div><span class="ml-4 font-bold text-lg">Egg</span><div class="flex items-center gap-2"><div class="flex gap-1 mr-2" id="M_EGG_S"><button onclick="setSize('M_EGG', 22)" class="size-btn active">S</button><button onclick="setSize('M_EGG', 25)" class="size-btn">M</button><button onclick="setSize('M_EGG', 30)" class="size-btn">L</button></div><button onclick="change('M_EGG', -1)" class="control-btn bg-slate-100">-</button><span id="qty-M_EGG" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('M_EGG', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
+                    <div class="item-card p-3 rounded-xl"><div class="h-bar bg-dark-green"></div><span class="ml-4 font-bold text-lg">Spinach</span><div class="flex items-center gap-2"><div class="flex gap-1 mr-2" id="M_SPI_S"><button onclick="setSize('M_SPI', 22)" class="size-btn active">S</button><button onclick="setSize('M_SPI', 25)" class="size-btn">M</button><button onclick="setSize('M_SPI', 30)" class="size-btn">L</button></div><button onclick="change('M_SPI', -1)" class="control-btn bg-slate-100">-</button><span id="qty-M_SPI" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('M_SPI', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="category-header text-xl font-black text-slate-700">CHAT</h2>
+                <div class="space-y-2">
+                    <div class="item-card p-3 rounded-xl shadow-sm"><div class="h-bar bg-red"></div><span class="ml-4 font-bold text-lg">P.B <span class="text-sm text-slate-400">$18</span></span><div class="flex items-center gap-4"><button onclick="change('CH_PB', -1)" class="control-btn bg-slate-100">-</button><span id="qty-CH_PB" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('CH_PB', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
+                    <div class="item-card p-3 rounded-xl shadow-sm"><div class="h-bar bg-golden"></div><span class="ml-4 font-bold text-lg">V.P <span class="text-sm text-slate-400">$18</span></span><div class="flex items-center gap-4"><button onclick="change('CH_VP', -1)" class="control-btn bg-slate-100">-</button><span id="qty-CH_VP" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('CH_VP', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
+                    <div class="item-card p-3 rounded-xl shadow-sm"><div class="h-bar bg-light-green"></div><span class="ml-4 font-bold text-lg">P.P <span class="text-sm text-slate-400">$10</span></span><div class="flex items-center gap-4"><button onclick="change('CH_PP', -1)" class="control-btn bg-slate-100">-</button><span id="qty-CH_PP" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('CH_PP', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
+                    <div class="item-card p-3 rounded-xl shadow-sm"><div class="h-bar bg-white"></div><span class="ml-4 font-bold text-lg">D.P <span class="text-sm text-slate-400">$13</span></span><div class="flex items-center gap-4"><button onclick="change('CH_DP', -1)" class="control-btn bg-slate-100">-</button><span id="qty-CH_DP" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('CH_DP', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-6 flex justify-between items-center shadow-2xl">
+        <div class="flex items-baseline gap-4">
+            <span class="text-slate-400 font-black uppercase text-xs tracking-widest">Total</span>
+            <span id="grand-total" class="text-6xl font-black text-slate-900">$0.00</span>
+        </div>
+        <button id="print-btn" onclick="printOrder()" class="bg-slate-900 text-white px-12 py-6 rounded-2xl text-3xl font-black uppercase tracking-widest active:scale-95 transition-transform">
+            Print 2 Copies
+        </button>
+    </div>
+
+    <script>
+        let orderData = {};
+        const prices = {
+            'CT': 20, 'CRT': 20, 'MT': 20, 'SK': 20, 'Bread': 2,
+            'Noodle_Chx': 20, 'Noodle_Egg': 20, 'Noodle_Veg': 20,
+            'Wrap_CT': 15, 'Wrap_CRT': 15, 'Wrap_MT': 15,
+            'C_CT_CRT': 35, 'C_CT_MT': 35, 'C_CT_SK': 35, 'C_CRT_MT': 35, 'C_MT_SK': 35, 'C_CRT_SK': 35, 'C_CT': 35, 'C_CRT': 35,
+            'M_CHX': 22, 'M_EGG': 22, 'M_SPI': 22,
+            'CH_PB': 18, 'CH_VP': 18, 'CH_PP': 10, 'CH_DP': 13
+        };
+
+        // Friendly names for receipt printing (agreed abbreviations)
+        const friendlyNames = {
+            'CT':        'CH Tikka',
+            'CRT':       'CR Tikka',
+            'MT':        'ML Tikka',
+            'SK':        'Sheek Kb',
+            'Bread':     'Bread',
+            'Noodle_Chx':'CH Noodls',
+            'Noodle_Egg':'Egg Noodls',
+            'Noodle_Veg':'Veg Noodls',
+            'Wrap_CT':   'Tikka Wrap',
+            'Wrap_CRT':  'Cori Wrap',
+            'Wrap_MT':   'Malai Wrap',
+            'C_CT_CRT':  'Tikka+Cori',
+            'C_CT_MT':   'Tikka+Malai',
+            'C_CT_SK':   'Tikka+Sheek',
+            'C_CRT_MT':  'Cori+Malai',
+            'C_MT_SK':   'Malai+Sheek',
+            'C_CRT_SK':  'Cori+Sheek',
+            'C_CT':      'Tikka Cmb',
+            'C_CRT':     'Cori Cmb',
+            // Martabak names are dynamic (see getMartabakName)
+            'CH_PB':     'Pav Bhaji',
+            'CH_VP':     'Vada Pav',
+            'CH_PP':     'Pani Puri',
+            'CH_DP':     'Dahi Puri'
+        };
+
+        // Returns current size label for Martabak items based on selected price
+        function getMartabakName(key) {
+            const sizeMap = { 22: 'S', 25: 'M', 30: 'L' };
+            const size = sizeMap[prices[key]] || 'S';
+            if (key === 'M_CHX') return `CH Mrtbk ${size}`;
+            if (key === 'M_EGG') return `Egg Mrtbk ${size}`;
+            if (key === 'M_SPI') return `Spinach Chz Mrtbk ${size}`;
+        }
+
+        // Returns display name for any key, handling dynamic Martabak names
+        function getItemName(key) {
+            if (key === 'M_CHX' || key === 'M_EGG' || key === 'M_SPI') {
+                return getMartabakName(key);
+            }
+            return friendlyNames[key] || key;
+        }
+
+        // Word-wrap: splits text at last space within maxChars, recurses for remainder
+        function wordWrap(text, maxChars) {
+            const lines = [];
+            while (text.length > maxChars) {
+                let breakAt = text.lastIndexOf(' ', maxChars);
+                if (breakAt <= 0) breakAt = maxChars; // last-resort hard break
+                lines.push(text.substring(0, breakAt).trim());
+                text = text.substring(breakAt).trim();
+            }
+            if (text.length > 0) lines.push(text);
+            return lines;
+        }
+
+        // Formats a single receipt line with smart word-wrap + FIXED COLUMN alignment
+        // 80mm printer = 42 normal chars per line
+        // Fixed layout: [NAME: 11 double-size chars = 22 normal] [QTY: 6 normal] [PRICE: 7 normal] = 35 normal
+        // NAME is always padded to exactly NAME_LIMIT so QTY column never drifts
+        function formatItemLine(key, DOUBLE_SIZE, NORMAL, BOLD_ON, BOLD_OFF, TALL_BOLD) {
+            const NAME_LIMIT  = 11;  // max double-size chars for name column
+            const QTY_WIDTH   = 4;   // double-size chars wide (= 8 normal widths) e.g. " x99"
+            const PRICE_WIDTH = 6;   // fixed width for price field e.g. " $9999"
+
+            const name     = getItemName(key);
+            const qty      = orderData[key];
+            const total    = qty * prices[key];
+            const qtyStr   = `x${qty}`;
+            const priceStr = `$${total}`;
+
+            const nameLines = wordWrap(name, NAME_LIMIT);
+            let result = '';
+
+            nameLines.forEach((line, i) => {
+                // Pad name to exactly NAME_LIMIT chars so QTY column is always fixed
+                const paddedName = line.padEnd(NAME_LIMIT, ' ');
+                result += DOUBLE_SIZE;
+                result += paddedName;
+                result += NORMAL;
+
+                if (i === 0) {
+                    // QTY: right-aligned in QTY_WIDTH chars, bold
+                    const qtyPadded   = qtyStr.padStart(QTY_WIDTH, ' ');
+                    // PRICE: right-aligned in PRICE_WIDTH chars
+                    const pricePadded = priceStr.padStart(PRICE_WIDTH, ' ');
+                    result += '  ' + TALL_BOLD + qtyPadded + NORMAL;
+                    result += pricePadded;
+                }
+                result += '\n';
+            });
+
+            return result;
+        }
+
+        // Keys that trigger the noodle rule
+        const noodleKeys = ['Noodle_Chx', 'Noodle_Egg', 'Noodle_Veg'];
+
+        function hasNoodles() {
+            return noodleKeys.some(k => (orderData[k] || 0) > 0);
+        }
+
+        function change(id, delta) {
+            orderData[id] = Math.max(0, (orderData[id] || 0) + delta);
+            document.getElementById('qty-' + id).innerText = orderData[id];
+            updateTotal();
+        }
+
+        function setSize(itemId, price) {
+            prices[itemId] = price;
+            const container = event.target.parentElement;
+            container.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            updateTotal();
+        }
+
+        function updateTotal() {
+            let total = 0;
+            for (let key in orderData) total += orderData[key] * prices[key];
+            document.getElementById('grand-total').innerText = `$${total.toFixed(2)}`;
+
+            // Update print button label based on noodle rule
+            const btn = document.getElementById('print-btn');
+            btn.innerText = hasNoodles() ? 'Print 3 Copies' : 'Print 2 Copies';
+
+            // Zero-value lock
+            btn.disabled = (total === 0);
+            btn.style.opacity = (total === 0) ? '0.4' : '1';
+        }
+
+        function generateReceipt(type) {
+            const ESC  = '\x1B';
+            const GS   = '\x1D';
+            // Text size modes
+            const DOUBLE_SIZE  = ESC + '\x21\x30'; // double width + double height
+            const DOUBLE_WIDTH = ESC + '\x21\x20'; // double width only
+            const BOLD_SIZE    = ESC + '\x21\x08'; // bold only (slightly larger feel)
+            const TALL_BOLD    = ESC + '\x21\x38'; // double width + double height + bold — for QTY
+            const NORMAL       = ESC + '\x21\x00'; // normal
+            // Bold on/off
+            const BOLD_ON  = ESC + '\x45\x01';
+            const BOLD_OFF = ESC + '\x45\x00';
+            // Alignment
+            const CENTER = ESC + '\x61\x01';
+            const LEFT   = ESC + '\x61\x00';
+            // Feed & cut
+            const CUT = GS + '\x56\x00';
+
+            let res = '';
+
+            // ── Brand header ──────────────────────────────
+            res += CENTER;
+            res += BOLD_ON;
+            res += 'DECCAN FLAVOURS\n';
+            res += BOLD_OFF;
+            res += '================================\n';
+            res += BOLD_ON + type + BOLD_OFF + '\n';
+            res += '================================\n';
+
+            // ── ORDER NUMBER — prominent, centred, numeric only ──
+            res += CENTER;
+            res += '\x1B\x21\x38'; // double width + double height + bold
+            res += `${document.getElementById('order-num').innerText}\n`;
+            res += NORMAL;
+            res += '================================\n';
+            res += LEFT;
+
+            // ── Column headers ────────────────────────────
+            res += BOLD_ON;
+            res += 'ITEM             QTY   PRICE\n';
+            res += BOLD_OFF;
+            res += '--------------------------------\n';
+
+            // ── Line items — double-size name with smart word-wrap, normal bold qty, integer price ──
+            for (let k in orderData) {
+                if (orderData[k] > 0) {
+                    res += formatItemLine(k, DOUBLE_SIZE, NORMAL, BOLD_ON, BOLD_OFF, TALL_BOLD);
+                }
+            }
+
+            // ── Total ─────────────────────────────────────
+            res += '================================\n';
+            res += CENTER;
+            res += DOUBLE_SIZE;
+            res += BOLD_ON;
+            const totalInt = '$' + Math.round(parseFloat(document.getElementById('grand-total').innerText.replace('$', '')));
+            res += `TOTAL  ${totalInt}\n`;
+            res += BOLD_OFF;
+            res += NORMAL;
+            res += LEFT;
+            res += '\n\n\n\n';
+            res += CUT;
+
+            return res;
+        }
+
+        function printOrder() {
+            const total = parseFloat(document.getElementById('grand-total').innerText.replace('$', ''));
+            if (total === 0) return;
+
+            let fullJob;
+            if (hasNoodles()) {
+                // 3-copy noodle rule: Main Kitchen + Noodle Kitchen + Customer Receipt
+                fullJob = generateReceipt('** KITCHEN COPY **')
+                        + generateReceipt('** NOODLE KITCHEN **')
+                        + generateReceipt('** CUSTOMER RECEIPT **');
+            } else {
+                // Standard 2-copy: Main Kitchen + Customer Receipt
+                fullJob = generateReceipt('** KITCHEN COPY **')
+                        + generateReceipt('** CUSTOMER RECEIPT **');
+            }
+
+            window.location.href = 'rawbt:base64,' + btoa(unescape(encodeURIComponent(fullJob)));
+
+            // Increment order number & reset UI
+            setTimeout(() => {
+                let num = parseInt(document.getElementById('order-num').innerText.replace('#', '')) + 1;
+                document.getElementById('order-num').innerText = `#${num.toString().padStart(3, '0')}`;
+                for (let k in orderData) {
+                    orderData[k] = 0;
+                    let el = document.getElementById('qty-' + k);
+                    if (el) el.innerText = 0;
+                }
+                // Reset Martabak size buttons to default (S)
+                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('#M_CHX_S .size-btn:first-child, #M_EGG_S .size-btn:first-child, #M_SPI_S .size-btn:first-child')
+                    .forEach(b => b.classList.add('active'));
+                prices['M_CHX'] = 22; prices['M_EGG'] = 22; prices['M_SPI'] = 22;
+                updateTotal();
+            }, 1000);
+        }
+
+        updateTotal(); // initialise button state
+    </script>
+</body>
+</html>

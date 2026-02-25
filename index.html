@@ -69,6 +69,9 @@
                     <div class="item-card p-3 rounded-xl"><div class="h-bar bg-orange"></div><span class="ml-4 font-bold text-lg">Chicken</span><div class="flex items-center gap-4"><button onclick="change('Noodle_Chx', -1)" class="control-btn bg-slate-100">-</button><span id="qty-Noodle_Chx" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('Noodle_Chx', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
                     <div class="item-card p-3 rounded-xl"><div class="h-bar bg-yellow"></div><span class="ml-4 font-bold text-lg">Egg</span><div class="flex items-center gap-4"><button onclick="change('Noodle_Egg', -1)" class="control-btn bg-slate-100">-</button><span id="qty-Noodle_Egg" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('Noodle_Egg', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
                     <div class="item-card p-3 rounded-xl"><div class="h-bar bg-green"></div><span class="ml-4 font-bold text-lg">Veg</span><div class="flex items-center gap-4"><button onclick="change('Noodle_Veg', -1)" class="control-btn bg-slate-100">-</button><span id="qty-Noodle_Veg" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('Noodle_Veg', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
+                    <div class="item-card p-3 rounded-xl"><div class="h-bar bg-orange"></div><span class="ml-4 font-bold text-lg">CH Fried Rice</span><div class="flex items-center gap-4"><button onclick="change('Rice_Chx', -1)" class="control-btn bg-slate-100">-</button><span id="qty-Rice_Chx" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('Rice_Chx', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
+                    <div class="item-card p-3 rounded-xl"><div class="h-bar bg-yellow"></div><span class="ml-4 font-bold text-lg">Egg Fried Rice</span><div class="flex items-center gap-4"><button onclick="change('Rice_Egg', -1)" class="control-btn bg-slate-100">-</button><span id="qty-Rice_Egg" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('Rice_Egg', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
+                    <div class="item-card p-3 rounded-xl"><div class="h-bar bg-green"></div><span class="ml-4 font-bold text-lg">Veg Fried Rice</span><div class="flex items-center gap-4"><button onclick="change('Rice_Veg', -1)" class="control-btn bg-slate-100">-</button><span id="qty-Rice_Veg" class="text-4xl font-black w-10 text-center">0</span><button onclick="change('Rice_Veg', 1)" class="control-btn bg-slate-900 text-white">+</button></div></div>
                 </div>
             </section>
 
@@ -139,6 +142,7 @@
         const prices = {
             'CT': 20, 'CRT': 20, 'MT': 20, 'SK': 20, 'Bread': 2,
             'Noodle_Chx': 20, 'Noodle_Egg': 20, 'Noodle_Veg': 20,
+            'Rice_Chx': 20, 'Rice_Egg': 20, 'Rice_Veg': 20,
             'Wrap_CT': 15, 'Wrap_CRT': 15, 'Wrap_MT': 15,
             'C_CT_CRT': 35, 'C_CT_MT': 35, 'C_CT_SK': 35, 'C_CRT_MT': 35, 'C_MT_SK': 35, 'C_CRT_SK': 35, 'C_CT': 35, 'C_CRT': 35,
             'M_CHX': 22, 'M_EGG': 22, 'M_SPI': 22,
@@ -155,6 +159,9 @@
             'Noodle_Chx':'CH Noodls',
             'Noodle_Egg':'Egg Noodls',
             'Noodle_Veg':'Veg Noodls',
+            'Rice_Chx':  'CH Fr Rice',
+            'Rice_Egg':  'Egg Fr Rice',
+            'Rice_Veg':  'Veg Fr Rice',
             'Wrap_CT':   'Tikka Wrap',
             'Wrap_CRT':  'Cori Wrap',
             'Wrap_MT':   'Malai Wrap',
@@ -243,7 +250,7 @@
         }
 
         // Keys that trigger the noodle rule
-        const noodleKeys = ['Noodle_Chx', 'Noodle_Egg', 'Noodle_Veg'];
+        const noodleKeys = ['Noodle_Chx', 'Noodle_Egg', 'Noodle_Veg', 'Rice_Chx', 'Rice_Egg', 'Rice_Veg'];
 
         function hasNoodles() {
             return noodleKeys.some(k => (orderData[k] || 0) > 0);

@@ -33,8 +33,6 @@
         .bg-green-brown { background: linear-gradient(to bottom, #22c55e 50%, #78350f 50%); }
 
         .control-btn { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: bold; font-size: 1.8rem; }
-        .size-btn { padding: 6px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; font-weight: 800; }
-        .size-btn.active { background-color: #0f172a; color: white; border-color: #0f172a; }
     </style>
 </head>
 <body class="p-4 pb-48">
@@ -233,7 +231,7 @@
         }
 
         // Keys that trigger the noodle rule
-        const noodleKeys = ['Noodle_Chx', 'Noodle_Egg', 'Noodle_Veg', 'Rice_Chx', 'Rice_Egg', 'Rice_Veg'];
+        const noodleKeys = ['Noodle_Chx', 'Noodle_Egg', 'Noodle_Veg', 'FR_CHX', 'FR_EGG', 'FR_VEG'];
 
         function hasNoodles() {
             return noodleKeys.some(k => (orderData[k] || 0) > 0);
@@ -242,15 +240,6 @@
         function change(id, delta) {
             orderData[id] = Math.max(0, (orderData[id] || 0) + delta);
             document.getElementById('qty-' + id).innerText = orderData[id];
-            updateTotal();
-            saveState();
-        }
-
-        function setSize(itemId, price) {
-            prices[itemId] = price;
-            const container = event.target.parentElement;
-            container.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
             updateTotal();
             saveState();
         }

@@ -139,10 +139,9 @@
         const prices = {
             'CT': 20, 'CRT': 20, 'MT': 20, 'SK': 20, 'Bread': 2,
             'Noodle_Chx': 20, 'Noodle_Egg': 20, 'Noodle_Veg': 20,
-            'Rice_Chx': 20, 'Rice_Egg': 20, 'Rice_Veg': 20,
             'Wrap_CT': 15, 'Wrap_CRT': 15, 'Wrap_MT': 15,
             'C_CT_CRT': 35, 'C_CT_MT': 35, 'C_CT_SK': 35, 'C_CRT_MT': 35, 'C_MT_SK': 35, 'C_CRT_SK': 35, 'C_CT': 35, 'C_CRT': 35,
-            'M_CHX': 22, 'M_EGG': 22, 'M_SPI': 22,
+            'FR_CHX': 20, 'FR_EGG': 20, 'FR_VEG': 20,
             'CH_PB': 18, 'CH_VP': 18, 'CH_PP': 10, 'CH_DP': 13
         };
 
@@ -156,9 +155,6 @@
             'Noodle_Chx':'CH Noodls',
             'Noodle_Egg':'Egg Noodls',
             'Noodle_Veg':'Veg Noodls',
-            'Rice_Chx':  'CH Fr Rice',
-            'Rice_Egg':  'Egg Fr Rice',
-            'Rice_Veg':  'Veg Fr Rice',
             'Wrap_CT':   'Tikka Wrap',
             'Wrap_CRT':  'Cori Wrap',
             'Wrap_MT':   'Malai Wrap',
@@ -170,27 +166,17 @@
             'C_CRT_SK':  'Cori+Sheek',
             'C_CT':      'Tikka Cmb',
             'C_CRT':     'Cori Cmb',
-            // Martabak names are dynamic (see getMartabakName)
+            'FR_CHX':    'CH Fr Rice',
+            'FR_EGG':    'Egg Fr Rice',
+            'FR_VEG':    'Veg Fr Rice',
             'CH_PB':     'Pav Bhaji',
             'CH_VP':     'Vada Pav',
             'CH_PP':     'Pani Puri',
             'CH_DP':     'Dahi Puri'
         };
 
-        // Returns current size label for Martabak items based on selected price
-        function getMartabakName(key) {
-            const sizeMap = { 22: 'S', 25: 'M', 30: 'L' };
-            const size = sizeMap[prices[key]] || 'S';
-            if (key === 'M_CHX') return `CH Mrtbk ${size}`;
-            if (key === 'M_EGG') return `Egg Mrtbk ${size}`;
-            if (key === 'M_SPI') return `Spinach Chz Mrtbk ${size}`;
-        }
-
-        // Returns display name for any key, handling dynamic Martabak names
+        // Returns display name for any key
         function getItemName(key) {
-            if (key === 'M_CHX' || key === 'M_EGG' || key === 'M_SPI') {
-                return getMartabakName(key);
-            }
             return friendlyNames[key] || key;
         }
 
@@ -395,11 +381,6 @@
                     let el = document.getElementById('qty-' + k);
                     if (el) el.innerText = 0;
                 }
-                // Reset Martabak size buttons to default (S)
-                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('#M_CHX_S .size-btn:first-child, #M_EGG_S .size-btn:first-child, #M_SPI_S .size-btn:first-child')
-                    .forEach(b => b.classList.add('active'));
-                prices['M_CHX'] = 22; prices['M_EGG'] = 22; prices['M_SPI'] = 22;
                 updateTotal();
                 saveState();
                 isPrinting = false;
@@ -449,28 +430,6 @@
                     }
                 }
 
-                const savedPrices = localStorage.getItem('df_prices');
-                if (savedPrices) {
-                    const parsedPrices = JSON.parse(savedPrices);
-                    // Only restore Martabak prices — never override base menu prices
-                    ['M_CHX', 'M_EGG', 'M_SPI'].forEach(key => {
-                        if (parsedPrices[key]) prices[key] = parsedPrices[key];
-                    });
-                    // Re-apply active class to Martabak size buttons
-                    const sizeMap = { 22: 0, 25: 1, 30: 2 }; // index of S/M/L button
-                    ['M_CHX', 'M_EGG', 'M_SPI'].forEach(key => {
-                        const containerId = key.replace('_', '_') + '_S';
-                        // Map key to container id: M_CHX → M_CHX_S, M_EGG → M_EGG_S, M_SPI → M_SPI_S
-                        const containerIdFixed = key + '_S';
-                        const container = document.getElementById(containerIdFixed);
-                        if (container) {
-                            const btns = container.querySelectorAll('.size-btn');
-                            btns.forEach(b => b.classList.remove('active'));
-                            const idx = sizeMap[prices[key]];
-                            if (idx !== undefined && btns[idx]) btns[idx].classList.add('active');
-                        }
-                    });
-                }
             } catch(e) { /* corrupt data — silently ignore, start fresh */ }
         }
 

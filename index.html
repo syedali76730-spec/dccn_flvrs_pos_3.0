@@ -231,10 +231,17 @@
         }
 
         // Keys that trigger the noodle rule
-        const noodleKeys = ['Noodle_Chx', 'Noodle_Egg', 'Noodle_Veg', 'FR_CHX', 'FR_EGG', 'FR_VEG'];
+        const noodleKeys = ['Noodle_Chx', 'Noodle_Egg', 'Noodle_Veg'];
 
         function hasNoodles() {
             return noodleKeys.some(k => (orderData[k] || 0) > 0);
+        }
+
+        function hasNoodlesWithOtherItems() {
+            const noodlesPresent = noodleKeys.some(k => (orderData[k] || 0) > 0);
+            if (!noodlesPresent) return false;
+            const otherPresent = Object.keys(orderData).some(k => !noodleKeys.includes(k) && (orderData[k] || 0) > 0);
+            return noodlesPresent && otherPresent;
         }
 
         function change(id, delta) {
@@ -251,7 +258,7 @@
 
             // Update print button label based on noodle rule
             const btn = document.getElementById('print-btn');
-            btn.innerText = hasNoodles() ? 'Print 3 Copies' : 'Print 2 Copies';
+            btn.innerText = hasNoodlesWithOtherItems() ? 'Print 3 Copies' : 'Print 2 Copies';
 
             // Zero-value lock
             btn.disabled = (total === 0);
@@ -336,8 +343,8 @@
             document.getElementById('print-btn').disabled = true;
 
             let fullJob;
-            if (hasNoodles()) {
-                // 3-copy noodle rule: Main Kitchen + Noodle Kitchen + Customer Receipt
+            if (hasNoodlesWithOtherItems()) {
+                // 3-copy rule: noodles AND other items present
                 fullJob = generateReceipt('** KITCHEN COPY **')
                         + generateReceipt('** NOODLE KITCHEN **')
                         + generateReceipt('** CUSTOMER RECEIPT **');
